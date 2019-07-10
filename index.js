@@ -1,7 +1,5 @@
 var mosca = require('mosca');
-var http = require('axios');
-var moment = require('moment');
-var apiUrl = 'http://localhost:8000';
+var axios = require('axios');
 var settings = {
     http: {
         port: 3000,
@@ -10,15 +8,14 @@ var settings = {
     }
 };
 var server = new mosca.Server(settings);
-//var listParking = [];
-var isSendingToSensor = true;
-
 var message = {
-    topic: '/push',
+    topic: 'push',
     payload: 'abcde', // or a Buffer
     qos: 0, // 0, 1, or 2
     retain: false // or true
 };
+
+var BASE_URL = 'http://serversmartkwhcom-in.cloud.revoluz.io/api/public';
 
 server.on('clientConnected', function (client) {
     console.log('client connected', client.id);
@@ -27,64 +24,55 @@ server.on('clientConnected', function (client) {
 // fired when a message is received
 server.on('published', function (packet, client) {
     console.log('Published', packet.payload.toString());
-    const config = {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }
+    console.log('topic', packet.topic);
+    var strMicro = packet.payload.toString();
+    var splitStr = strMicro.split('/');
+    var data = {
+        blok_id: splitStr[0],
+        tanggal: splitStr[1],
+        waktu: splitStr[2],
+        va: splitStr[3],
+        vb: splitStr[4],
+        vc: splitStr[5],
+        vab: splitStr[6],
+        vbc: splitStr[7],
+        vac: splitStr[8],
+        ia: splitStr[9],
+        ib: splitStr[10],
+        ic: splitStr[11],
+        pa: splitStr[12],
+        pb: splitStr[13],
+        pc: splitStr[14],
+        pt: splitStr[15],
+        pfa: splitStr[16],
+        pfb: splitStr[17],
+        pfc: splitStr[18],
+        ep: splitStr[19],
+        eq: splitStr[20]
+    };
 
-    const raw = packet.payload.toString();
-    console.log(raw);
-    const payload = raw.split('-');
-    http.post(apiUrl + '/api/mcb_transaction/create', {
-        datemcb: moment().format('YYYY-MM-DD'),
-        timemcb: moment().format('hh:mm:ss'),
-        current: 10,
-        voltage: payload[1],
-        power: payload[0],
-        mcb_id: 4,
-        block_id: 7,
-        category_mcb_id: 3,
-    })
-        .then(function (response) {
-            console.log(response);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-    // console.log('topic', packet);
+    console.log(splitStr);
+
+    if (splitStr.length > 10) {
+        axios
+            .post(BASE_URL + '/api/transaksi_mcb/create', data)
+            .then(res => {
+                console.log(`statusCode: ${res.statusCode}`);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
 });
-
-function isJson(payload) {
-    try {
-        JSON.parse(payload);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-function isUndefined(payload) {
-    let response = true;
-    Object.keys(payload).map(val => {
-        if (payload[val] === 'undefined') {
-            response = false;
-        }
-    });
-    return response;
-
-}
 
 server.publish(message, function () {
     console.log('done!');
 });
 
-server.on('ready', setup);
+server.on('ready!', setup);
 
 // fired when the mqtt server is ready
 function setup() {
-    setInterval(() => {
-        isSendingToSensor = !isSendingToSensor;
-    }, 1000);
-    console.log('Mosca server is up and running');
+    //console.log('Mosca server is up and running');
+    console.log('MQTT Server sedang berjalan');
 }
