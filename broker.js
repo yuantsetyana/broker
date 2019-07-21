@@ -5,7 +5,8 @@ var settings = {
         port: 3000,
         bundle: true,
         static: './'
-    }
+    },
+    port: 1883
 };
 var server = new mosca.Server(settings);
 var message = {
@@ -15,16 +16,17 @@ var message = {
     retain: false // or true
 };
 
-var BASE_URL = 'http://serversmartkwhcom-in.cloud.revoluz.io/api/public';
+var BASE_URL = 'http://api.smartkwh.online';
 
-server.on('clientConnected', function (client) {
+server.on('clientConnected', function(client) {
     console.log('client connected', client.id);
 });
 
 // fired when a message is received
-server.on('published', function (packet, client) {
+server.on('published', function(packet, client) {
     console.log('Published', packet.payload.toString());
     console.log('topic', packet.topic);
+    var dt = new Date();
     var strMicro = packet.payload.toString();
     var splitStr = strMicro.split('/');
     var data = {
@@ -51,13 +53,23 @@ server.on('published', function (packet, client) {
         eq: splitStr[20]
     };
 
-    console.log(splitStr);
+    // server.publish(
+    //     {
+    //         topic: 'monitor',
+    //         payload: JSON.stringify(data),
+    //         qos: 0,
+    //         retain: false
+    //     },
+    //     function() {
+    //         console.log('published to monitor');
+    //     }
+    // );
 
     if (splitStr.length > 10) {
         axios
             .post(BASE_URL + '/api/transaksi_mcb/create', data)
             .then(res => {
-                console.log(`statusCode: ${res.statusCode}`);
+                console.log(`res: ${res.toString()}`);
             })
             .catch(error => {
                 console.error(error);
@@ -65,7 +77,7 @@ server.on('published', function (packet, client) {
     }
 });
 
-server.publish(message, function () {
+server.publish(message, function() {
     console.log('done!');
 });
 
