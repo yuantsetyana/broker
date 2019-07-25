@@ -38,7 +38,7 @@ server.on('published', function(packet, client) {
         vc: splitStr[5],
         vab: splitStr[6],
         vbc: splitStr[7],
-        vac: splitStr[8],
+        vca: splitStr[8],
         ia: splitStr[9],
         ib: splitStr[10],
         ic: splitStr[11],
