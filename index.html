@@ -12,8 +12,9 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
+    <div class="container-fluid">
+        <!-- <div align="right"><a ui-sref="login">Logout</a></div> -->
+        <div class="table-responsive">
             <table class="table" id="content">
                 <thead class="thead-dark">
                     <tr>
@@ -71,8 +72,8 @@
             // Once a connection has been made, make a subscription and send a message.
             console.log("onConnect");
             client.subscribe("push");
-            message = new Paho.MQTT.Message("Hello");
-            message.destinationName = "World";
+            message = new Paho.MQTT.Message("Fakhri");
+            message.destinationName = "Helo";
             client.send(message);
         }
 
@@ -110,6 +111,9 @@
                 + "<td>" + split[18] + "</td>"
                 + "<td>" + split[19] + "</td>"
                 + "<td>" + split[20] + "</td>"
+
+            // var row = "<tr></tr>";
+            // row.append(column).prependTo("#content");
             $('#content > tbody:last-child').append(
                 "<tr>" + column + "</tr>"
             );
