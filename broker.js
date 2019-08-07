@@ -92,7 +92,10 @@ server.publish(message, function() {
 // Accepts the connection if the username and password are valid
 var authenticate = function(client, username, password, callback) {
   var authorized = false;
-  var users = [{ username: "fakhri", password: "1234" }];
+  var users = [
+    { username: "fakhri", password: "1234" },
+    { username: "fakhri2", password: "1234" }
+  ];
   for (var i = 0; i < users.length; i++) {
     if (users[i].username == username && users[i].password == password) {
       authorized = true;
